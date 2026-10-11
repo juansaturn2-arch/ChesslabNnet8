@@ -9,7 +9,7 @@ ChesslabNnet8 is one UCI engine with **seven brains** in a single `.exe`:
 
 You pick the brain from a drop-down list. The engine can also play its brains against each other, and it carries its own Polyglot opening book inside the exe.
 
-In my test games it held its own against engines rated around **2750–3150**. It beat Crafty 25.3 and Demolito 2021, and drew a Stockfish 2.3 derivative and SLSD. It lost to Marvin and Stockfish 5.
+**Measured strength: about 3300** (80 games at 5+0, ending with 40 games against Stockfish 4–7). Full PGNs are in [`games/`](games/).
 
 This engine is the end of a road that started with a Python script that played illegal moves at about 600 Elo.
 
@@ -26,7 +26,7 @@ This engine is the end of a road that started with a Python script that played i
 | **K7Homebrew v6** | v5.1 search with an `Eval` option: Homebrew, CLCore (a CPW-style eval) or NNUE. | — |
 | **ChesslabHB7** | v6 + v5.2 weights + CLHBSpeed options + logging; answers `stop`/`isready` during a search. | ~2350 (Homebrew eval) |
 | **K7CustomNetV1** | v6 search with every eval removed except **my own K7 net** (`NetFile`). The experiment: can my own data and trainer make a real net? | 1.5M positions ≈ 2200, 10M ≈ 2425–2450, 54M / 100M (512 hidden) beat CLCoreAVX2 and CLMaster64 |
-| **K7CustomNetV2** | Same nets, much stronger search (see below). | ~3000–3150 |
+| **K7CustomNetV2** | Same nets, much stronger search (see below). | ~3300 |
 | **ChesslabNnet8** | V2's search with six nets built in, the Homebrew eval as a seventh brain, an embedded book and brain-vs-brain self-play. | Same as V2 with the 31k brain |
 
 ### K7CustomNetV2 search upgrades
@@ -97,24 +97,42 @@ The names are rough strength tags (31k ≈ 3100). The 31k net is the final one: 
 
 ## Results
 
-All games were played in Arena at **120+6** on an Intel i9-9900K, one thread, mostly with the 200M / 512 / λ0.5 net. Ratings are the opponents' list ratings or my estimates.
+**Setup:**
+- Arena, **5+0** time control (300 s per side), Intel i9-9900K.
+- One thread for every engine.
+- Brain = 31k (200M positions, 512 hidden, λ0.5).
+- Colours alternate every game. All games are in [`games/`](games/).
 
-| Opponent | Rating | Result |
-|---|---|---|
-| TheKing 3.50 | ~2750 | Draw, Win |
-| CLNnue18 | ~2800 | Win |
-| CLOcta (Octochess derivative) | ~2850 | Draw, Win |
-| CL4k64 (4ku derivative) | ~2900 | Win |
-| Crafty 25.3 | 2947 | Win, Win |
-| ChesslabGM64 (Stockfish 2.3 derivative) | ~3111 | Draws |
-| **Demolito 2021** | **3153** | **Win** |
-| SLSD (Stockfish in C) | ~3400 claimed | Draw |
-| Marvin | ~3200 | Loss |
-| Stockfish 5 | stronger | Loss |
+### Stockfish 4–7 (rating-list ratings, 1 CPU): 40 games
 
-Performance over the first ten of these games was about **3100–3150**. Its limit is around the Marvin / Stockfish 5 level.
+| Opponent | List rating | W / D / L | Score | Performance |
+|---|---|---|---|---|
+| Stockfish 4 | 3155 | 6 / 2 / 2 | 7 / 10 | ~3300 |
+| Stockfish 5 | 3238 | 5 / 1 / 4 | 5.5 / 10 | ~3275 |
+| Stockfish 6 | 3280 | 4 / 3 / 3 | 5.5 / 10 | ~3315 |
+| Stockfish 7 | 3302 | 3 / 4 / 3 | 5 / 10 | ~3300 |
+| **Total** | avg 3244 | **18 / 10 / 12** | **23 / 40 (57.5%)** | **~3300** (95%: 3200–3400) |
 
-These are single games, not a rating-list match. The real number needs hundreds of games, but every result points the same way.
+### Gauntlet 2900–3150: 40 games
+
+| Opponent | Rating | W / D / L | Score |
+|---|---|---|---|
+| Demolito 2021 | 3153 | 9 / 0 / 1 | 9 / 10 |
+| Crafty 25.3 | 3000 | 8 / 1 / 1 | 8.5 / 10 |
+| CL4k64 (4ku derivative) | 2900 | 8 / 0 / 2 | 8 / 10 |
+| ChesslabGM64 (Stockfish 2.3 derivative) | 3111 | 4 / 4 / 2 | 6 / 10 |
+| **Total** | avg 3041 | **29 / 5 / 6** | **31.5 / 40 (78.8%)**: performance ~3285 |
+
+### All 80 games
+
+**54.5 / 80 (68.1%)** against an average opponent of 3142: **performance ≈ 3290** (95%: about 3205–3355).
+
+The two 40-game sets were played on different days against different opponents, and they agree on about 3300.
+
+**Notes:**
+- This is an unofficial rating at 5 minutes per game. At longer time controls it may come out a little lower.
+- The book chose mostly French and Ruy Lopez openings in the Stockfish games, so a wider set of openings would make the number more solid.
+- Earlier single test games at 120+6 included draws with SLSD (Stockfish in C, ~3400) and losses to Marvin and Stockfish 5. Single games proved to be a poor guide: they suggested ~3100, while the 80-game result is ~3300.
 
 ---
 
@@ -183,4 +201,4 @@ Build variants:
 - The authors of every engine it was tested against.
 - Written with AI pair-programming (Claude), with K7 as the coach: chess knowledge, direction, testing and every training run.
 
-**K7 ChessLab**: from a 600-Elo Python script that played illegal moves, to a 2350 hand-written eval, to a ~3100 engine running nets I trained myself.
+**K7 ChessLab**: from a 600-Elo Python script that played illegal moves, to a 2350 hand-written eval, to a ~3300 engine running nets I trained myself.
