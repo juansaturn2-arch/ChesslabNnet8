@@ -9,7 +9,7 @@ ChesslabNnet8 is one UCI engine with **seven brains** in a single `.exe`:
 
 You pick the brain from a drop-down list. The engine can also play its brains against each other, and it carries its own Polyglot opening book inside the exe.
 
-**Measured strength: about 3300** (80 games at 5+0, ending with 40 games against Stockfish 4–7). Full PGNs are in [`games/`](games/).
+**Measured strength: about 3200–3270** (170 test games: 90 in Arena at 5+0 against nine engines, plus 80 in my CLEloFinder tool). Full PGNs are in [`games/`](games/).
 
 This engine is the end of a road that started with a Python script that played illegal moves at about 600 Elo.
 
@@ -26,7 +26,7 @@ This engine is the end of a road that started with a Python script that played i
 | **K7Homebrew v6** | v5.1 search with an `Eval` option: Homebrew, CLCore (a CPW-style eval) or NNUE. | — |
 | **ChesslabHB7** | v6 + v5.2 weights + CLHBSpeed options + logging; answers `stop`/`isready` during a search. | ~2350 (Homebrew eval) |
 | **K7CustomNetV1** | v6 search with every eval removed except **my own K7 net** (`NetFile`). The experiment: can my own data and trainer make a real net? | 1.5M positions ≈ 2200, 10M ≈ 2425–2450, 54M / 100M (512 hidden) beat CLCoreAVX2 and CLMaster64 |
-| **K7CustomNetV2** | Same nets, much stronger search (see below). | ~3300 |
+| **K7CustomNetV2** | Same nets, much stronger search (see below). | ~3200–3270 |
 | **ChesslabNnet8** | V2's search with six nets built in, the Homebrew eval as a seventh brain, an embedded book and brain-vs-brain self-play. | Same as V2 with the 31k brain |
 
 ### K7CustomNetV2 search upgrades
@@ -123,16 +123,45 @@ The names are rough strength tags (31k ≈ 3100). The 31k net is the final one: 
 | ChesslabGM64 (Stockfish 2.3 derivative) | 3111 | 4 / 4 / 2 | 6 / 10 |
 | **Total** | avg 3041 | **29 / 5 / 6** | **31.5 / 40 (78.8%)**: performance ~3285 |
 
-### All 80 games
+### RukChess 4.2.0 (3392): 10 games
 
-**54.5 / 80 (68.1%)** against an average opponent of 3142: **performance ≈ 3290** (95%: about 3205–3355).
+A step up to a small NNUE engine rated above it, this time with a much wider spread of openings: Grünfeld, Scotch, Caro-Kann, English and Giuoco Piano.
 
-The two 40-game sets were played on different days against different opponents, and they agree on about 3300.
+| Opponent | Rating | W / D / L | Score | Performance |
+|---|---|---|---|---|
+| RukChess 4.2.0 | 3392 | 0 / 3 / 7 | 1.5 / 10 | ~3090 (95%: 2600–3245) |
+
+The engine held all three draws and lost most of the other games in long endgame grinds, but RukChess was clearly stronger.
+
+### CLEloFinder v1.4: 80 games
+
+My own rating tool played K7CustomNetV2 with the 31k net (the same search code as ChesslabNnet8) against **ChesslabNnet9** as the anchor, rated 3340 ±18.
+
+| Anchor | Anchor rating | Games | Result | Performance |
+|---|---|---|---|---|
+| ChesslabNnet9 | 3340 ±18 | 80 | about 17 / 80 | **3114 ±91** |
+
+### Overall
+
+| Set | Games | Performance |
+|---|---|---|
+| Stockfish 4–7 + gauntlet | 80 | ~3290 (±75) |
+| + RukChess | 90 | ~3273 (±67) |
+| CLEloFinder (Nnet9 anchor) | 80 | ~3114 (±91) |
+| **Everything pooled** | **170** | **~3200 (±56)** |
+
+The Arena games and the CLEloFinder games disagree by about 180 points. That's more than luck explains, so one setup is probably pulling its number one way:
+
+- **Nnet9 is a sibling engine.** Related engines share blind spots, and the stronger one exploits them, so gaps between them look bigger than against outside engines. I saw the same thing when my 1024 net beat my 512 net head to head but did no better against other engines.
+- **One anchor carries all the risk.** If Nnet9's 3340 is off, the 3114 moves by the same amount. The Arena games spread that risk over nine engines with list ratings.
+
+So the honest summary is **about 3200 (the pooled 170-game figure) to 3270 (the independent engines only), at 5 minutes per game.**
 
 **Notes:**
-- This is an unofficial rating at 5 minutes per game. At longer time controls it may come out a little lower.
-- The book chose mostly French and Ruy Lopez openings in the Stockfish games, so a wider set of openings would make the number more solid.
-- Earlier single test games at 120+6 included draws with SLSD (Stockfish in C, ~3400) and losses to Marvin and Stockfish 5. Single games proved to be a poor guide: they suggested ~3100, while the 80-game result is ~3300.
+- This is an unofficial rating at 5 minutes per game. At longer time controls it may come out different.
+- The book chose mostly French and Ruy Lopez openings in the Stockfish games. The RukChess games used a much wider set, and the result there was lower, so the narrow openings may have flattered the Stockfish numbers a little.
+- Earlier single test games at 120+6 included draws with SLSD (Stockfish in C, ~3400) and losses to Marvin and Stockfish 5. Single games proved to be a poor guide: each one could suggest anything from ~3100 to ~3400.
+- Next step: CLEloFinder runs against two or three unrelated anchors (RukChess, Stockfish 6) to settle whether 3200 or 3270 is closer.
 
 ---
 
@@ -201,4 +230,4 @@ Build variants:
 - The authors of every engine it was tested against.
 - Written with AI pair-programming (Claude), with K7 as the coach: chess knowledge, direction, testing and every training run.
 
-**K7 ChessLab**: from a 600-Elo Python script that played illegal moves, to a 2350 hand-written eval, to a ~3300 engine running nets I trained myself.
+**K7 ChessLab**: from a 600-Elo Python script that played illegal moves, to a 2350 hand-written eval, to a ~3200-class engine running nets I trained myself.
